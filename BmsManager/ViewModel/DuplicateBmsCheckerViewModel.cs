@@ -18,14 +18,14 @@ namespace BmsManager.ViewModel
 
         public ICommand CheckByMD5 { get; set; }
 
-        public ICommand CheckByMeta { get; set; }
+        //public ICommand CheckByMeta { get; set; }
 
         public DuplicateBmsCheckerViewModel()
         {
             FileList = new BmsFileListViewModel();
-
-            CheckByMD5 = CreateCommand(FileList.Folders.CheckDuplicateByMD5);
-            CheckByMeta = CreateCommand(FileList.Folders.CheckDuplicateByMeta);
+            
+            CheckByMD5 = CreateCommand(FileList.CheckDuplicateByMD5);
+            //CheckByMeta = CreateCommand(FileList.Folders.CheckDuplicateByMeta);
         }
     }
 }

@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
             <Button Margin="5" Content="MD5" Command="{Binding CheckByMD5}"/>
-            <Button Margin="5" Content="Title/Artist" Command="{Binding CheckByMeta}"/>
+            <!--Button Margin="5" Content="Title/Artist" Command="{Binding CheckByMeta}"/-->
         </StackPanel>
         <local:BmsFileList Grid.Row="1" Margin="5" DataContext="{Binding FileList}"/>
     </Grid>
