@@ -24,6 +24,8 @@ namespace BmsManager
 
         public ICommand ShowExporter { get; set; }
 
+        public ICommand DBReset { get; set; }
+
         public MainWindowViewModel()
         {
             ShowFileRegister = CreateCommand(() => new FolderRegisterer().Show());
@@ -31,6 +33,22 @@ namespace BmsManager
             ShowDuplicateChecker = CreateCommand(() => new DuplicateBmsChecker().Show());
             ShowDiffRegister = CreateCommand(() => new DiffRegisterer().Show());
             ShowExporter = CreateCommand(() => new Exporter().Show());
+
+            DBReset = CreateCommand(DBResetAct);
+        }
+
+        public void DBResetAct()
+        {
+            using var con = new BmsManagerContext();
+
+            con.Files.RemoveRange(con.Files);
+            con.BmsFolders.RemoveRange(con.BmsFolders);
+            con.RootDirectories.RemoveRange(con.RootDirectories);
+            con.Tables.RemoveRange(con.Tables);
+            con.Difficulties.RemoveRange(con.Difficulties);
+            con.TableDatas.RemoveRange(con.TableDatas);
+
+            con.SaveChanges();
         }
     }
 }
