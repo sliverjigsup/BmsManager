@@ -46,6 +46,7 @@ namespace BmsManager.ViewModel
             this.entity = entity;
             Files = new ObservableCollection<BmsFileViewModel>(entity.Files.Select(f => new BmsFileViewModel(f)));
             OpenFolder = new RelayCommand(openFolder);
+            Merge = new RelayCommand(async () => await merge());
         }
 
         private void openFolder() => Process.Start(new ProcessStartInfo { FileName = entity.Path, UseShellExecute = true, Verb = "open" });
@@ -115,8 +116,18 @@ namespace BmsManager.ViewModel
             var roots = Duplicates.Select(d => d.entity.Root).ToArray();
             var ext = Settings.Default.Extentions;
 
+
+            //folのほうが削除される側
+
             foreach (var fol in Duplicates)
             {
+                if (FullPath == fol.FullPath)
+                {
+                    //同一パスを念のためはじく（ありえないはず）
+                    MessageBox.Show("同一パス");
+                    return;
+                }
+
                 foreach (var file in fol.Files)
                 {
                     // 重複BMSファイルは先に削除しておく
@@ -167,6 +178,8 @@ namespace BmsManager.ViewModel
                     MessageBox.Show(ex.ToString());
                     return;
                 }
+
+                MessageBox.Show("統合完了");
             }
 
             var loader = new FolderLoader();
@@ -236,11 +249,12 @@ namespace BmsManager.ViewModel
 
     static class BmsFolderExtention
     {
-        public static void CheckDuplicateByMD5(this IEnumerable<BmsFolderViewModel> folders)
+        public static void CheckDuplicateByMD5(this BmsFileListViewModel listView)
         {
             using var con = new BmsManagerContext();
             // 重複BMSが存在するフォルダを全て取得する (まだどのフォルダと重複しているかは見ない)
             var dupMD5 = con.Files
+                .Where(f => !string.IsNullOrEmpty(f.MD5))
                 .GroupBy(f => f.MD5)
                 .Select(g => new { MD5 = g.Key, Count = g.Count() })
                 .Where(g => g.Count > 1);
@@ -249,10 +263,16 @@ namespace BmsManager.ViewModel
                 .Include(f => f.Files).Include(f => f.Root)
                 .AsNoTracking().ToArray();
 
-            foreach (var folder in folders)
+            var folViewModels = new ObservableCollection<BmsFolderViewModel>(
+                fol.Select(f => new BmsFolderViewModel(f)) // fol の各要素を BmsFolderViewModel に変換
+            );
+
+            listView.Folders = folViewModels;
+
+            foreach (var folder in listView.Folders)
             {
                 // TODO: 重複判定をもう少しわかりやすくしたい
-                folder.Duplicates = folders.Where(f => f.ID != folder.ID && f.Files.Any(f1 => folder.Files.Any(f2 => f1.MD5 == f2.MD5))).ToArray();
+                folder.Duplicates = listView.Folders.Where(f => f.ID != folder.ID && f.Files.Any(f1 => folder.Files.Any(f2 => f1.MD5 == f2.MD5))).ToArray();
             }
         }
 
