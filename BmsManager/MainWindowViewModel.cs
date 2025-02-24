@@ -39,6 +39,16 @@ namespace BmsManager
 
         public void DBResetAct()
         {
+            var result = MessageBox.Show("データ量が多いと時間がかかります。処理を続けますか？",
+                             "確認",
+                             MessageBoxButton.YesNo,
+                             MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.No)
+            {
+                return;
+            }
+
             using var con = new BmsManagerContext();
 
             con.Files.RemoveRange(con.Files);
@@ -49,6 +59,8 @@ namespace BmsManager
             con.TableDatas.RemoveRange(con.TableDatas);
 
             con.SaveChanges();
+
+            MessageBox.Show("完了");
         }
     }
 }
