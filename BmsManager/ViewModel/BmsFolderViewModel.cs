@@ -116,8 +116,18 @@ namespace BmsManager.ViewModel
             var roots = Duplicates.Select(d => d.entity.Root).ToArray();
             var ext = Settings.Default.Extentions;
 
+
+            //folのほうが削除される側
+
             foreach (var fol in Duplicates)
             {
+                if (FullPath == fol.FullPath)
+                {
+                    //同一パスを念のためはじく（ありえないはず）
+                    MessageBox.Show("同一パス");
+                    return;
+                }
+
                 foreach (var file in fol.Files)
                 {
                     // 重複BMSファイルは先に削除しておく
@@ -168,6 +178,8 @@ namespace BmsManager.ViewModel
                     MessageBox.Show(ex.ToString());
                     return;
                 }
+
+                MessageBox.Show("統合完了");
             }
 
             var loader = new FolderLoader();
